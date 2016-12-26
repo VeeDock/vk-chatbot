@@ -13,6 +13,9 @@ module.exports = {
     //   1. public_followed: бот принимает тех, кто вступил в группу
     "_cond": "<condition>", 
 
+    // Имя бота
+    "_name": "<name>", 
+
     // Данные для авторизации
     "auth":  {
       "login": "<bot_login>", 
