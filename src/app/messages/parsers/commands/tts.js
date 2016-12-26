@@ -63,25 +63,6 @@ function detectRULang (text) {
 }
 
 /**
- * Возвращает время и дату озвучки
- * @return {String}
- * @private
- */
-function getRecordDate () {
-  let date = new Date();
-
-  let hours   = date.getHours();
-      hours   = hours.length === 1 ? ('0' + hours) : hours;
-  let minutes = date.getMinutes();
-      minutes = minutes.length === 1 ? ('0' + minutes) : minutes;
-  let day     = date.getDate();
-  let month   = date.getMonth() + 1;
-  let year    = date.getFullYear();
-
-  return `${hours}:${minutes}, ${day}.${month}.${year}`;
-}
-
-/**
  * Озвучивает текст
  * @param  {String} text
  * @return {Readable Stream}
@@ -136,7 +117,6 @@ function run (arg, callback) {
 
   let gender = 'male';
   let lang   = 'ru';
-  let title  = 'Recorded at ' + getRecordDate();
   let limit  = argObj.permissionsMask >= 3 ? MAX_LENGTH_PRO : MAX_LENGTH;
 
   // Текст для озвучки не задан, либо длина текста маленькая
