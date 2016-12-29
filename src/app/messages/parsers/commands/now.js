@@ -1,6 +1,12 @@
 'use strict';
 
 /**
+ * Module dependencies.
+ * @private
+ */
+const config = require('../../../../config');
+
+/**
  * Local constants
  * @private
  */
@@ -35,6 +41,9 @@ function formatDate (digits) {
  */
 function run (arg, callback) {
   let now = new Date();
+
+      // Установим нужный часовой пояс
+      now.setHours(now.getUTCHours() + config.commands.now['timezone-offset']);
 
   let hours   = formatDate(now.getHours());
   let minutes = formatDate(now.getMinutes());

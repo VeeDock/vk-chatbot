@@ -32,6 +32,15 @@ module.exports = {
     weather: '<api_key>'
   }, 
 
+  // Индивидуальные настройки для команд
+  commands: {
+    // Команда "/now"
+    now: {
+      // Смещение относительно UTC
+      'timezone-offset': 3
+    }
+  }, 
+
   friends:  {
     // Интервал проверки на новые заявки в друзья (в мс)
     'check-interval': 60 * 1000
