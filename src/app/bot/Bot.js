@@ -33,6 +33,10 @@ class Bot {
       token, 
       captcha: config.api.captcha
     });
+
+    // Ссылка на экземпляр класса Application (устанавливается при добавлении 
+    // ботов в приложение: ../application/Application.js#add())
+    // this.parent = Reference;
   }
 
   /**
