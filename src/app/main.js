@@ -24,7 +24,6 @@ const pm2sender    = require('../lib/pm2-sender');
 
 // Accounts data
 const accounts    = require('../accounts');
-const accountKeys = Object.keys(accounts);
 
 // Database files
 const usersDatabase  = new JsonDatabase('./data/users.json', true);
@@ -47,7 +46,7 @@ debug.out('= Starting of all the bots was begin');
  */
 async.series(
   // Составляем массив функций-инициализаторов
-  accountKeys.map(botId => {
+  Object.keys(accounts).map(botId => {
     let authData   = accounts[botId];
     let initObject = Object.assign(authData, { id: botId });
     
