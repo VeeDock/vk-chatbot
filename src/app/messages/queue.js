@@ -3,16 +3,13 @@
 /**
  * Класс, реализующий работу очереди сообщений
  */
-
 class Queue {
   /**
    * Очередь сообщений
    * 
    * Формат записи элемента массива:
    *   [
-   *     [chatId1, message], 
-   *     [chatId2, message], 
-   *     [chatIdN, message]
+   *     [chatId, message]
    *   ]
    */
   constructor () {
@@ -20,9 +17,10 @@ class Queue {
   }
 
   /**
-   * Помещает сообщение в очередь
+   * Помещает сообщение в конец очереди
    * @param  {Object} message Объект сообщения
    * @param  {Number} chatId  ID чата
+   * @public
    */
   enqueue (message, chatId) {
     /**
@@ -32,16 +30,14 @@ class Queue {
      * Если такого chatId в очереди не оказалось, 
      * то добавляем новое сообщение в очередь (по завершению цикла)
      * 
-     * Только для сообщений без прикреплений 
+     * * Только для сообщений без прикреплений 
      */
     if (!message.attachment || message.attachment.length === 0) {
       // Пробегаемся по очереди и находим нужный chatId
       for (let i = 0, len = this.queue.length; i < len; i++) {
-        // Нашли. То, что надо!
         // Убедимся, что в сообщении нет прикреплений
         if (this.queue[i] && this.queue[i][0] === chatId && this.queue[i][1].attachment.length === 0) {
-          // Помещаем сообщение в эту очередь.
-          // Но не просто помещаем, а объединяем его с текущим сообщением в очереди
+          // Объединяем текущее сообщение с найденным сообщением в очереди
           this.queue[i][1].message          += '\n\n' + message.message;
           this.queue[i][1].forward_messages += ',' + message.forward_messages;
 
@@ -51,8 +47,8 @@ class Queue {
       }
     }
 
-    // Если же сообщение содержит прикрепления, либо для данного сообщения не была 
-    // найдена подходящая очередь (без прикреплений), то добавляем новый массив в конец очереди.
+    // Если же сообщение содержит прикрепления, либо для данного сообщения не было 
+    // найдено подходящее сообщение в очереди (без прикреплений), то добавляем новый массив в конец очереди.
     this.queue.push([chatId, message]);
   }
 
@@ -61,6 +57,7 @@ class Queue {
    * @param  {Number} index   Позиция
    * @param  {Object} message Объект сообщения
    * @param  {Number} chatId  ID чата
+   * @public
    */
   enqueueTo (index, message, chatId) {
     /**
@@ -89,6 +86,7 @@ class Queue {
 
   /**
    * Удаляет первый элемент из очереди и возвращает его.
+   * @public
    */
   dequeue () {
     // Возвращаем 1-ый элемент массива, т.е. объект сообщения. 
@@ -99,6 +97,7 @@ class Queue {
   /**
    * Удаляет сообщения в чат chatId из очереди
    * @param  {Number} chatId ID чата
+   * @public
    */
   clear (chatId) {
     let i   = 0;
@@ -118,9 +117,10 @@ class Queue {
   /**
    * Вёрнет true, если очередь пуста.
    * @return {Boolean}
+   * @public
    */
   isEmpty () {
-    return (this.queue.length === 0);
+    return this.queue.length === 0;
   }
 }
 
