@@ -1,48 +1,31 @@
 'use strict';
 
 /**
- * Базовый класс для работы с сообщениями.
- */
-
-/**
- * Module dependencies
+ * Module dependencies.
  * @private
  */
-const config      = require('../../config');
-const debug       = require('../../lib/simple-debug')(__filename);
-const LongPolling = require('./longpolling');
-const processing  = require('./processing');
-const Queue       = require('./queue');
-
-/**
- * Проверка флагов полученного сообщения (для личных сообщений).
- * @param  {Number} flag Флаг сообщения (vk.com/dev/using_longpoll_2)
- * @return {Boolean}
- * @private
- */
-function checkPmFlags (flag) {
-  let flags = [33, 49, 545, 561];
-
-  return !!~flags.indexOf(flag);
-}
+const EventEmitter = require('events').EventEmitter;
+const config       = require('../../config');
+const debug        = require('../../lib/simple-debug')(__filename);
+const longpolling  = require('./longpolling');
+const processing   = require('./processing');
+const Queue        = require('./queue');
 
 /**
  * Преобразует полученный массив участников беседы (messages.getChatUsers) в объект. 
- *
  * @param  {Array}    array   Исходный массив
  * @param  {Number}   botId   ID бота
  * @return {Object}
  * @private
  *
  * Вид возвращаемого объекта:
- *
  * {
- *   [user_id]: {
- *     firstName:    [first_name], 
- *     lastName:     [last_name], 
- *     chatAdmin:    [true/false], 
- *     botInviter:   [true/undefined], 
- *     invitedByBot: [true/false]
+ *   <user_id>: {
+ *     firstName:    String, 
+ *     lastName:     String, 
+ *     chatAdmin:    Boolean, 
+ *     botInviter:   Boolean, 
+ *     invitedByBot: Boolean
  *   }
  * }
  */
@@ -77,21 +60,17 @@ function chatUsersArrayToObj (array, botId) {
 }
 
 /**
- * Messages Class
+ * Базовый класс для работы с сообщениями.
  */
-class Messages {
+class Messages extends EventEmitter {
   constructor (parent) {
-    // Ссылка на экземпляр класса Bot
+    super();
+
+    // Ссылка на экземпляр класса Bot (../bot/Bot.js)
     this.parent = parent;
 
     // Класс для работы с очередью сообщений
     this.Queue = new Queue();
-
-    /**
-     * Класс для работы с LongPoll подключением
-     * @private
-     */
-    this._LongPolling = new LongPolling(this);
 
     /**
      * Информация о диалогах. 
@@ -143,7 +122,7 @@ class Messages {
   }
 
   /**
-   * Обновляет список участников беседы
+   * Обновляет список участников беседы.
    * @param  {Number} chat_id ID беседы
    * @return {Promise}
    * @private
@@ -153,8 +132,8 @@ class Messages {
       .then(response => {
         // Бота уже нет в беседе. Очищаем информацию о чате
         if (response.length === 0) {
-          // 1. Удаляем список участников
-          delete this._conversations[chat_id].users;
+          // 1. Удаляем всю информацию о чате (список участников, последнее сообщение и пр.)
+          delete this._conversations[chat_id];
 
           // 2. Удаляем сообщения в этот чат из очереди
           // В случае, если бота кикнули (это отследить можно только проверив response.length === 0), 
@@ -173,8 +152,7 @@ class Messages {
         if (error.name === 'VKApiError' && (error.code === 10 || error.code === 6)) 
           return;
 
-        debug.err('Error in _updateChatComp');
-        debug.err(error);
+        debug.err('Error in _updateChatComp', error);
 
         // Снова пытаемся получить список участников
         return this._updateChatComp(chat_id);
@@ -187,38 +165,60 @@ class Messages {
    * @private
    */
   _updatesLoop () {
-    // Установим обработчик на событие "updates". 
-    // Массивы обновлений из LongPolling попадают сюда
-    this._LongPolling.on('updates', updatesArray => {
-      // Пробегаемся по массиву обновлений и обрабатываем сообщения
-      for (let i = 0, len = updatesArray.length; i < len; i++) {
-        let current = updatesArray[i];
+    /**
+     * Установим обработчик на событие "longpoll_updates". 
+     * Обработанные массивы обновлений из LongPolling попадают сюда. 
+     * @param  {Object} event
+     *   @property {String} type
+     *   @property {Object} target
+     *
+     * Возможные типы событий:
+     *   1. 'new_message'   - пришло новое сообщение;
+     *   2. 'mchat_updated' - изменения в мультичате (название беседы, изменения в составе)
+     */
+    this.on('longpoll_updates', event => {
+      let { type, target } = event;
 
-        // Значение 51 в нулевом элементе массива свидетельствует о том, 
-        // что информация беседы была изменена. Поэтому обновляем 
-        // список участников текущей беседы
-        if (current[0] === 51 && this._conversations[current[1]].users) 
-          this._updateChatComp(parseInt(current[1]));
+      // Пришло новое сообщение.
+      if (type === 'new_message') {
+        // Предыдущее сообщение в данном диалоге.
+        let prevMessage = (this._conversations[target.dialogId].lastMessage || '').toLowerCase();
 
-        // Значение 4 в нулевом элементе массива -> пришло новое сообщение. 
-        // Обрабатываем все сообщения, за исключением сообщений от бота
-        if (current[0] === 4 && ((current[7].from && parseInt(current[7].from) !== this.parent._botId) || checkPmFlags(current[2]))) {
-          let currentUserId = current[7].from ? parseInt(current[7].from) : parseInt(current[3]);
+        // Не обрабатываем сообщение, если оно идентично предыдущему.
+        if (target.message.toLowerCase() === prevMessage) 
+          return;
 
-          // Если пользователь, написавший сообщение, заблокирован, то 
-          // сообщение обработано не будет. 
-          if (this.parent.parent._databases['banned'].data.includes(currentUserId)) 
-            return;
+        // Если пользователь, написавший сообщение, заблокирован, то 
+        // сообщение обработано не будет. 
+        if (this.parent.parent._databases['banned'].data.includes(target.fromId)) 
+          return;
 
-          processing.call(this, current);
-        }
+        // Сохраняем последнее сообщение в диалоге.
+        this._conversations[target.dialogId].lastMessage = target.message;
+
+        // Участники текущей беседы ещё не были загружены, поэтому получим их прямо сейчас.
+        if (target.isMultichat && !this._conversations[target.mchatId].users) 
+          this._updateChatComp(target.mchatId);
+
+        // Обработаем полученное сообщение (выполним команды / ответим на сообщение)
+        processing.call(this, target);
+
+        return;
+      }
+
+      // Произошли изменения в беседе
+      if (type === 'mchat_updated') {
+        // Обновляем список участников
+        this._updateChatComp(target.mchatId);
+
+        return;
       }
     });
 
     debug.out('+ LongPolling listener was set');
 
     // Подключаемся к LongPoll серверу и проверяем обновления
-    this._LongPolling.check();
+    longpolling.call(this);
 
     debug.out('+ LongPolling checking was started');
   }
@@ -231,13 +231,22 @@ class Messages {
   _queueLoop () {
     let queue = this.Queue;
 
+    // Если очередь не пуста
     if (!queue.isEmpty()) {
+      // Берём из неё первое сообщение
       let message = queue.dequeue();
 
-      // Если список юзеров === null, значит, бот ушёл сам из чата chat_id
+      // Если список юзеров === null, значит, бот ушёл сам из чата chat_id. 
       // В таком случае, сообщение не отправляем
-      if (message && message.chat_id && this._conversations[message.chat_id].users === null) 
-        message = null;
+      if (message && message.chat_id && this._conversations[message.chat_id].users === null) {
+        // Удаляем информацию о чате
+        delete this._conversations[message.chat_id];
+
+        // Удаляем сообщения из очереди в этот чат
+        this.Queue.clear(message.chat_id);
+
+        return setTimeout(() => this._queueLoop(), config.messages.delay);
+      }
 
       return this._send(message)
         .then(() => {
@@ -247,8 +256,7 @@ class Messages {
           return setTimeout(() => this._queueLoop(), config.messages.delay);
         })
         .catch(error => {
-          debug.err('- Error in Messages._queueLoop()');
-          debug.err(error.stack);
+          debug.err('- Error in Messages._queueLoop()', error);
 
           return setTimeout(() => this._queueLoop(), config.messages.delay);
         });
@@ -269,14 +277,15 @@ class Messages {
 
     return this.parent.VKApi.call('messages.send', messageObj)
       .catch(error => {
-        // Flood Control error
+        // Флуд-контроль. 
+        // Добавляем в конец сообщения смайлик и отправляем запрос снова.
         if (error.name === 'VKApiError' && error.code === 9) {
           messageObj.message = messageObj.message + ' 😊';
 
           return this._send(messageObj);
         }
 
-        // Internal server error
+        // Внутрення серверная ошибка, отправлять по-новой ничего не будем.
         if (error.name === 'VKApiError' && error.code === 10) 
           return;
 
@@ -305,8 +314,8 @@ class Messages {
 
   /**
    * Запускает модуль сообщений:
-   * 1. Активируется цикл проверки сообщений в очереди для отправки;
-   * 2. Активируется цикл проверки новых сообщений через LongPoll.
+   *   1. Активируется цикл проверки сообщений в очереди для отправки;
+   *   2. Активируется цикл проверки новых сообщений через LongPoll.
    * @public
    */
   start () {

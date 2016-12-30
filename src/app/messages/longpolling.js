@@ -1,90 +1,188 @@
 'use strict';
 
 /**
- * Подключение к LongPoll серверу и получение обновлений. 
- * Обновления можно получать, повесив обработчик на событие "updates".
- */
-
-/**
  * Module dependencies
  * @private
  */
-const EventEmitter = require('events').EventEmitter;
 const debug        = require('../../lib/simple-debug')(__filename);
 const prequest     = require('request-promise');
 
-class LongPolling extends EventEmitter {
-  constructor (parent) {
-    super();
+/**
+ * Собирает объект сообщения из массива данных, который был получен через LongPolling.
+ * @param   {Array} item
+ * @return  {Object}
+ * @private
+ * 
+ * Функции передаётся контекст (this) класса Messages (./Messages.js)
+ */
+function messageAssembler (item) {
+  // Текст сообщения
+  let message = item[6] || '';
 
-    this.parent = parent;
-  }
+  // ID сообщения
+  let messageId = item[1];
 
-  /**
-   * Полностью обновляет LongPoll URL и подключается к серверу снова
-   * @return {Promise}
-   * @private
-   */
-  _updateFullLinkAndStart () {
-    debug.out('= Updating full LongPoll URL and starting checking again.');
+  // Вложения (прикрепления)
+  let attachments = item[7] || {};
 
-    // Получаем данные для подключения к LongPoll серверу
-    return this.parent.parent.VKApi.call('messages.getLongPollServer')
-      .then(response => {
-        // Составляем URL
-        let link = `https://${response.server}?act=a_check&wait=25&mode=2&key=${response.key}&ts=${response.ts}`;
+  // ID диалога
+  let convId = parseInt(item[3]);
 
-        debug.out('+ URL was successfully got. Starting checking now.');
+  // ID беседы
+  let mchatId = convId - 2000000000;
 
-        return this.check(link);
-      })
-      .catch(error => {
-        debug.err('_updateFullLinkAndStart()', error);
+  // ID пользователя, от которого пришло сообщение в беседу
+  let mchatFromId = parseInt(attachments.from);
 
-        return this._updateFullLinkAndStart();
+  // == true, если сообщение пришло в беседе
+  let isMultichat = mchatFromId && true || false;
+
+  // Точный ID диалога, в который пришло сообщение
+  let dialogId = isMultichat ? mchatId : convId;
+
+  // Точный ID пользователя, от которого пришло сообщение
+  let fromId = isMultichat ? mchatFromId : convId;
+
+  // Объект сообщения (для использования в парсерах, миддлвэйрах и командах)
+  let messToParse = {
+    _vkapi: this.parent.VKApi, 
+    attachments, 
+    botId: this.parent._botId, 
+    chatId: dialogId, 
+    chatUsers: isMultichat && this._conversations[mchatId].users || null, 
+    fromId, 
+    isMultichat, 
+    message, 
+    messageId
+  };
+
+  return messToParse;
+}
+
+/**
+ * Проверка флагов полученного сообщения (для личных сообщений).
+ * @param  {Number} flag Флаг сообщения (vk.com/dev/using_longpoll_2)
+ * @return {Boolean}
+ * @private
+ */
+function checkPmFlags (flag) {
+  let flags = [33, 49, 545, 561];
+
+  return !!~flags.indexOf(flag);
+}
+
+/**
+ * Обрабатывает полученные обновления
+ * @param  {Array} updatesArray 
+ * @private
+ *
+ * Функции передаётся контекст (this) класса Messages (./Messages.js)
+ */
+function updatesProcessor (updatesArray) {
+  // Пробегаемся по массиву обновлений
+  for (let i = 0, len = updatesArray.length; i < len; i++) {
+    let current = updatesArray[i];
+
+    // Значение "4" в нулевом элементе массива => пришло новое сообщение. (https://vk.com/dev/using_longpoll)
+    // Обрабатываем все сообщения, за исключением сообщений от бота.
+    if (current[0] === 4 && ((current[7].from && parseInt(current[7].from) !== this.parent._botId) || checkPmFlags(current[2]))) {
+      this.emit('longpoll_updates', {
+        type:   'new_message', 
+        target: messageAssembler(current)
       });
-  }
 
-  /**
-   * Получает обновления от LongPoll сервера
-   * @param  {String} link
-   * @return {Promise}
-   * @public
-   */
-  check (link = null) {
-    if (link === null) 
-      return this._updateFullLinkAndStart();
+      continue;
+    }
 
-    debug.out('+ Request to LongPoll Server was sent.');
+    // Друг current[1] стал оффлайн
+    // if (current[0] === 9) {
 
-    return prequest(link, { json: true })
-      .then(res => {
-        // Критическая ошибка в LongPoll-соединении (failed code >= 2). 
-        // Нужно полностью обновить LongPoll-сессию (key и ts)
-        if (res.failed && res.failed !== 1) 
-          return this._updateFullLinkAndStart();
+    // }
 
-        // Обновление LongPoll URL (установка свежего timestamp)
-        link = link.replace(/ts=.*/, 'ts=' + res.ts);
-
-        // Никаких обновлений получено не было. 
-        // Подключаемся по-новой
-        if (!res.updates || res.updates.length < 1) 
-          return this.check(link);
-
-        // Получены обновления. Сообщаем об этом
-        this.emit('updates', res.updates);
-
-        // Подключаемся по-новой для прослушивания обновлений
-        return this.check(link);
-      })
-      .catch(error => {
-        // Скорее всего, произошла одна из ошибок: ETIMEDOUT, EHOSTUNREACH, ESOCKETTIMEDOUT, ECONNRESET, ECONNREFUSED, ENOTFOUND, 502 code, etc. 
-        // Переподключаемся. 
-        // В логи ничего не пишем
-        return this._updateFullLinkAndStart();
+    // Значение "51" в нулевом элементе массива свидетельствует о том, 
+    // что информация беседы была изменена.
+    if (current[0] === 51 && this._conversations[current[1]].users) {
+      this.emit('longpoll_updates', {
+        type:   'mchat_updated', 
+        target: {
+          mchatId: current[1]
+        }
       });
+
+      continue;
+    }
   }
 }
 
-module.exports = LongPolling;
+/**
+ * Полностью обновляет LongPoll URL и подключается к серверу снова
+ * @return {Promise}
+ * @private
+ *
+ * Функции передаётся контекст (this) класса Messages (./Messages.js)
+ */
+function getLinkAndStartChecking () {
+  debug.out('= Updating full LongPoll URL and starting checking again.');
+
+  // Получаем данные для подключения к LongPoll серверу
+  return this.parent.VKApi.call('messages.getLongPollServer')
+    .then(response => {
+      // Составляем URL
+      let link = `https://${response.server}?act=a_check&wait=25&mode=2&key=${response.key}&ts=${response.ts}`;
+
+      debug.out('+ URL was successfully got. Starting checking now.');
+
+      return checker(link);
+    })
+    .catch(error => {
+      debug.err('getLinkAndStartChecking()', error);
+
+      return getLinkAndStartChecking.call(this);
+    });
+}
+
+/**
+ * Получает обновления от LongPoll сервера
+ * @param  {String} link
+ * @return {Promise}
+ * @public
+ *
+ * Функции передаётся контекст (this) класса Messages (./Messages.js)
+ */
+function checker (link = null) {
+  // Адрес сервера ещё не был получен - получаем.
+  if (link === null) 
+    return getLinkAndStartChecking.call(this);
+
+  debug.out('+ Request to LongPoll Server was sent.');
+
+  return prequest(link, { json: true })
+    .then(response => {
+      // Критическая ошибка в LongPoll-соединении (failed code >= 2). 
+      // Нужно полностью обновить LongPoll-сессию (key и ts)
+      if (response.failed && response.failed !== 1) 
+        return getLinkAndStartChecking.call(this);
+
+      // Обновление LongPoll URL (установка свежего timestamp)
+      link = link.replace(/ts=.*/, 'ts=' + response.ts);
+
+      // Никаких обновлений получено не было. 
+      // Подключаемся по-новой
+      if (!response.updates || response.updates.length < 1) 
+        return checker(link);
+
+      // Получены обновления. Обработаем их
+      updatesProcessor.call(this, response.updates);
+
+      // Подключаемся по-новой для прослушивания обновлений
+      return checker(link);
+    })
+    .catch(error => {
+      // Скорее всего, произошла одна из ошибок: ETIMEDOUT, EHOSTUNREACH, ESOCKETTIMEDOUT, ECONNRESET, ECONNREFUSED, ENOTFOUND, 502 code, etc. 
+      // Переподключаемся. 
+      // В логи ничего не пишем
+      return getLinkAndStartChecking.call(this);
+    });
+}
+
+module.exports = checker;

@@ -21,14 +21,14 @@ const replaceUrls = require('./parsers/commands/include/replacer');
  * Функции передаётся контекст (this) класса Messages (./Messages.js)
  */
 function processUpdates (item) {
-  let messageObject = assembleMessage.call(this, item);
+  let messageObject = item;
   let messageObjectMiddlewared;
 
-  // Нет объекта сообщения. Скорее всего, оно не обработано, т.к. идентично предыдущему, 
-  // либо его прислал в беседу заблокированный пользователь
-  if (messageObject === null) 
-    return null;
+  // Нет объекта сообщения. Не знаю, когда такое может произойти, но.. на всякий случай пусть будет.
+  if (!messageObject) 
+    return;
 
+  // Режим чата
   let chatMode = this.getChatMode(messageObject.chatId);
 
   // Режим беседы отличен от 'default' (или undefined). 
@@ -65,7 +65,7 @@ function processUpdates (item) {
     .then(newMessageObj => {
       // Парсер вернул null. Ничего отправлять не придется
       if (newMessageObj === null) 
-        return null;
+        return;
 
       let messToSend = makeMessageObject(messageObject, newMessageObj);
 
@@ -80,77 +80,7 @@ function processUpdates (item) {
           this.Queue.enqueue(messToSend, messageObjectMiddlewared.chatId);
       }
     })
-    .catch(error => {
-      debug.err('processUpdates()', error);
-    });
-}
-
-/**
- * Обрабатывает обновления, которые были получены через LongPolling.
- * @param  {Array}    item      Элемент массива обновлений.
- * @private
- * 
- * Функции передаётся контекст (this) класса Messages (./Messages.js)
- */
-function assembleMessage (item) {
-  /**
-   * Разбираем массив обновлений на читаемые переменные
-   */
-  // Текст сообщения
-  let message = item[6] || '';
-
-  // ID сообщения
-  let messageId = item[1];
-
-  // Вложения (прикрепления)
-  let attachments = item[7] || {};
-
-  // ID диалога
-  let convId = parseInt(item[3]);
-
-  // ID беседы
-  let mchatId = convId - 2000000000;
-
-  // ID пользователя, от которого пришло сообщение в беседу
-  let mchatFromId = parseInt(attachments.from);
-
-  // == true, если сообщение пришло в беседе
-  let isMultichat = mchatFromId && true || false;
-
-  // Точный ID диалога, в который пришло сообщение
-  let dialogId = isMultichat ? mchatId : convId;
-
-  // Точный ID пользователя, от которого пришло сообщение
-  let fromId = isMultichat ? mchatFromId : convId;
-
-  // Предыдущее сообщение в данном диалоге
-  let prevMessage = (this._conversations[dialogId].lastMessage || '').toLowerCase();
-
-  // Участники этой беседы ещё не были загружены, поэтому получим их прямо сейчас
-  if (isMultichat && !this._conversations[mchatId].users) 
-    this._updateChatComp(mchatId);
-
-  // Не обрабатываем сообщение, если оно идентично предыдущему
-  if (message.toLowerCase() === prevMessage) 
-    return null;
-
-  // Сохраняем последнее сообщение в диалоге
-  this._conversations[dialogId].lastMessage = message;
-
-  // Объект сообщения (для использования в парсерах, миддлвэйрах и командах)
-  let messToParse = {
-    _vkapi: this.parent.VKApi, 
-    attachments, 
-    botId: this.parent._botId, 
-    chatId: dialogId, 
-    chatUsers: isMultichat && this._conversations[mchatId].users || null, 
-    fromId, 
-    isMultichat, 
-    message, 
-    messageId
-  };
-
-  return messToParse;
+    .catch(error => debug.err('processUpdates()', error));
 }
 
 /**
@@ -164,21 +94,27 @@ function assembleMessage (item) {
 function checking (messageObj) {
   return Promise.resolve()
     .then(() => {
-      // В беседе есть другие чат-боты (помимо текущего)
-      if (messageObj.botsInChat !== null) {
-        // Объект участников беседы
-        let chatUsers = messageObj.chatUsers;
+      // В беседе есть несколько наших ботов
+      if (messageObj.ourBotsInChat) {
+        // Сразу выходим из беседы
+        return this.parent.VKApi.call('messages.removeChatUser', {
+            chat_id: messageObj.chatId, 
+            user_id: messageObj.botId
+          })
+          .then(() => {
+            // Присваиваем null, т.к. бот вышел сам
+            this._conversations[messageObj.chatId].users = null;
 
-        // Массив ID ботов (string)
-        let botIds = messageObj.botsInChat;
+            // Возвращаем null, чтобы в очередь ничего не помещалось
+            return null;
+          })
+          .catch(() => null);
+      }
 
-        // Дата обнаружения ботов
+      // В беседе слишком много ботов
+      if (messageObj.tooMuchBots) {
+        // Время последней проверки
         let checkingDate = this._conversations[messageObj.chatId].botsCheckingTime;
-
-        // Если === true, значит в чате есть ещё наши боты => выходим.
-        // Для этого установим старую дату, чтобы бот моментально вышел
-        if (messageObj.botsInChat === true) 
-          checkingDate = new Date('11.11.11');
 
         // Дата уже была ранее установлена, но боты ещё не кикнуты
         if (checkingDate !== undefined) {
@@ -202,6 +138,8 @@ function checking (messageObj) {
               })
               .catch(() => null);
           } else {
+            // Прошло менее 3-х минут. По-прежнему, не отвечаем на сообщения и ждем, 
+            // пока часть ботов не будет кикнута. 
             return null;
           }
         } else {
@@ -211,28 +149,19 @@ function checking (messageObj) {
 
           return {
             apply: false, 
-            message: 'Оказывается, в беседе помимо меня есть ещё боты..' + 
-                     '\nК сожалению, я не буду отвечать на ваши сообщения, ' + 
-                     'пока в беседе присутствует более одного бота, не считая меня.' + 
-                     '\n\nВам стоит удалить из беседы некоторых ботов.' + 
-                     '\n\nБоты:' + 
-                     '\n' + botIds.map(v => `${chatUsers[v].firstName} (vk.com/id${v})`).join('\n') + 
-                     '\n\nЯ жду 3 минуты, перед тем как уходить.', 
+            message: 'В беседе слишком много ботов -- более 50%.\n\n' + 
+                     'Если в течение 3-х минут часть ботов не будет удалена из беседы, ' + 
+                     'бот ' + this.parent._name + ' будет вынужден её покинуть.'
             forward: false
           };
         }
       }
 
-      // Ботов в чате нет, но дата была ранее установлена. Значит, боты были кикнуты. 
-      // Выводим сообщение о том, что теперь всё хорошо, а также удаляем установленную дату
-      if (messageObj.botsInChat === null && this._conversations[messageObj.chatId].botsCheckingTime !== undefined) {
+      // Часть ботов была удалена из беседы, а значит наш бот снова отвечает на сообщения.
+      if (!messageObj.tooMuchBots && this._conversations[messageObj.chatId].botsCheckingTime !== undefined) {
         delete this._conversations[messageObj.chatId].botsCheckingTime;
 
-        return {
-          apply: false, 
-          message: 'Отлично! Теперь я буду отвечать на ваши сообщения.', 
-          forward: false
-        };
+        return messageObj;
       }
 
       // Всё ок, ничего проверять не пришлось, возвращаем исходный объект сообщения
