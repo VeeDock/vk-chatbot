@@ -2,31 +2,34 @@
 
 /**
  * Добавляет свойство fwdMessage, которое содержит последнее пересланное 
- * сообщение из цепочки. (т.е. то сообщение, текст которого виден)
+ * сообщение из цепочки. (т.е. то сообщение, текст которого виден).
  *
- * [*] Только для текстовых персональных сообщений.
+ * * Только для текстовых персональных сообщений.
+ *
+ * @param {Obejct} messageObj Объект сообщения
+ * @public
+ *
+ * Функции передаётся контекст (this) класса Bot (./bot/Bot.js)
  */
+function middleware (messageObj) {
+  let attachments = messageObj.attachments;
+  let message     = null;
 
-module.exports = messageObj => {
-  let attach = messageObj.attachments;
-  let msg    = null;
-
-  if (!messageObj.isMultichat && attach.fwd) {
-    if (!~attach.fwd.indexOf(':')) {
+  if (!messageObj.isMultichat && attachments.fwd) {
+    if (!~attachments.fwd.indexOf(':')) {
       // Пересланное сообщение только одно, возвращаем его
-      msg = attach[`fwd${attach.fwd}`];
+      message = attachments[`fwd${attachments.fwd}`];
     } else {
       // Пересланных сообщений несколько, возвращаем последнее (т.е. самое новое)
-      let fwd = attach.fwd.split(':')[0];
-      
-      msg = attach[`fwd${fwd}`];
+      let fwd = attachments.fwd.split(':')[0];
+
+      message = attachments[`fwd${fwd}`];
     }
   }
 
-  if (!msg || msg.length === 0) 
-    msg = null;
-
   return {
-    fwdMessage: msg
+    fwdMessage: message || null
   }
 }
+
+module.exports = middleware;
