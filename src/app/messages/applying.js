@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * Module dependencies.
+ * @private
+ */
 const parsers     = require('./parsers');
 const middlewares = require('./middlewares');
 const debug       = require('../../lib/simple-debug')(__filename);
