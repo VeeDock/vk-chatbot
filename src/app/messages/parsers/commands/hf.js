@@ -23,8 +23,8 @@ function run (arg, callback) {
   if (argText === null) 
     return callback(null);
 
-  // Обрезаем текст и избавляемся от <br> тегов
-  argText = argText.replace(/<br>/g, '\n').slice(0, MAX_TEXT_LENGTH);
+  // Обрезаем текст
+  argText = argText.slice(0, MAX_TEXT_LENGTH);
 
   // Разбиваем текст на слова
   let words = argText.split(' ');

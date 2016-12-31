@@ -38,7 +38,7 @@ function run (arg, callback) {
     isRandom   = true;
   } else {
     // Обрезаем длинные поисковые запросы до 100 символов
-    searchText = searchText.replace(/<br>/g, ' ').slice(0, 100);
+    searchText = searchText.slice(0, 100);
   }
 
   return prequest(url, {

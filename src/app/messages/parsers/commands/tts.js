@@ -129,8 +129,8 @@ function run (arg, callback) {
     argText = argText.slice(firstWord.length + 1);
   }
 
-  // Убираем озвучку перевода на новую строку и обрезаем текст
-  argText = argText.replace(/<br>/g, ' ').slice(0, limit);
+  // Обрезаем текст
+  argText = argText.slice(0, limit);
 
   // В тексте русских символов меньше 50%? Озвучиваем английским голосом
   if (!detectRULang(argText)) 

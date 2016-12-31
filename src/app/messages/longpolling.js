@@ -4,8 +4,20 @@
  * Module dependencies
  * @private
  */
-const debug        = require('../../lib/simple-debug')(__filename);
-const prequest     = require('request-promise');
+const debug    = require('../../lib/simple-debug')(__filename);
+const prequest = require('request-promise');
+
+/**
+ * Local constants.
+ * @private
+ */
+const HTML_ENTITIES = [
+  ['&lt;', '<'], 
+  ['&gt;', '>'], 
+  ['&amp;', '&'], 
+  ['&quot;', '"'], 
+  ['<br>', '. ']
+];
 
 /**
  * Собирает объект сообщения из массива данных, который был получен через LongPolling.
@@ -18,6 +30,11 @@ const prequest     = require('request-promise');
 function messageAssembler (item) {
   // Текст сообщения
   let message = item[6] || '';
+
+  // Преобразуем некоторые HTML сущности в символы, а также 
+  // заменяем перевод строки "<br>" точкой. 
+  for (let i = 0, len = HTML_ENTITIES.length; i < len; i++) 
+    message = message.replace(new RegExp(HTML_ENTITIES[i][0], 'g'), HTML_ENTITIES[i][1]);
 
   // ID сообщения
   let messageId = item[1];

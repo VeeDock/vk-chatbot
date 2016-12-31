@@ -29,7 +29,7 @@ function run (arg, callback) {
     return callback(null);
 
   // Обрезаем текст. Гугл принимает до ~150 символов, но нам столько не нужно
-  argText = argText.replace(/<br>/g, ' ').slice(0, 90);
+  argText = argText.slice(0, 90);
 
   // Делаем запрос с мобильным User-Agent
   return prequest(SERVICE_URL, {

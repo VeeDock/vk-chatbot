@@ -18,7 +18,7 @@ function run (arg, callback) {
     return callback(null);
 
   // Обрезаем текст. Гугл принимает до ~150 символов, но нам столько не нужно
-  argText = argText.replace(/<br>/g, ' ').slice(0, 100);
+  argText = argText.slice(0, 100);
 
   // Создаём URL для запроса
   let reqUrl = 'https://google.ru/search?newwindow=1&site=imghp&tbm=isch&source=hp&q=' + encodeURIComponent(argText);
