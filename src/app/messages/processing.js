@@ -151,7 +151,7 @@ function checking (messageObj) {
             apply: false, 
             message: 'В беседе слишком много ботов -- более 50%.\n\n' + 
                      'Если в течение 3-х минут часть ботов не будет удалена из беседы, ' + 
-                     'бот ' + this.parent._name + ' будет вынужден её покинуть.'
+                     'бот ' + this.parent._name + ' будет вынужден её покинуть.', 
             forward: false
           };
         }

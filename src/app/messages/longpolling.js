@@ -112,6 +112,11 @@ function updatesProcessor (updatesArray) {
     }
 
     // Друг current[1] стал оффлайн
+    // current[2]:
+    //   0: вышел сам
+    //   1: по таймауту
+    // 
+    // Если друг оффлайн, можно очистить некоторые данные (Messages._conversations[user_id])
     // if (current[0] === 9) {
 
     // }
@@ -149,7 +154,7 @@ function getLinkAndStartChecking () {
 
       debug.out('+ URL was successfully got. Starting checking now.');
 
-      return checker(link);
+      return checker.call(this, link);
     })
     .catch(error => {
       debug.err('getLinkAndStartChecking()', error);
@@ -186,13 +191,13 @@ function checker (link = null) {
       // Никаких обновлений получено не было. 
       // Подключаемся по-новой
       if (!response.updates || response.updates.length < 1) 
-        return checker(link);
+        return checker.call(this, link);
 
       // Получены обновления. Обработаем их
       updatesProcessor.call(this, response.updates);
 
       // Подключаемся по-новой для прослушивания обновлений
-      return checker(link);
+      return checker.call(this, link);
     })
     .catch(error => {
       // Скорее всего, произошла одна из ошибок: ETIMEDOUT, EHOSTUNREACH, ESOCKETTIMEDOUT, ECONNRESET, ECONNREFUSED, ENOTFOUND, 502 code, etc. 
