@@ -105,7 +105,7 @@ function updatesProcessor (updatesArray) {
     if (current[0] === 4 && ((current[7].from && parseInt(current[7].from) !== this.parent._botId) || checkPmFlags(current[2]))) {
       this.emit('longpoll_updates', {
         type:   'new_message', 
-        target: messageAssembler(current)
+        target: messageAssembler.call(this, current)
       });
 
       continue;
@@ -182,19 +182,29 @@ function checker (link = null) {
     .then(response => {
       // Критическая ошибка в LongPoll-соединении (failed code >= 2). 
       // Нужно полностью обновить LongPoll-сессию (key и ts)
-      if (response.failed && response.failed !== 1) 
+      if (response.failed && response.failed !== 1) {
+        debug.out('- LongPoll connection error: failed = ' + response.failed);
+
         return getLinkAndStartChecking.call(this);
+      }
 
       // Обновление LongPoll URL (установка свежего timestamp)
       link = link.replace(/ts=.*/, 'ts=' + response.ts);
 
       // Никаких обновлений получено не было. 
       // Подключаемся по-новой
-      if (!response.updates || response.updates.length < 1) 
+      if (!response.updates || response.updates.length < 1) {
+        debug.out('- No updates received.');
+
         return checker.call(this, link);
+      }
+
+      debug.out('= Processing longpoll updates.');
 
       // Получены обновления. Обработаем их
       updatesProcessor.call(this, response.updates);
+
+      debug.out('= Checking again.');
 
       // Подключаемся по-новой для прослушивания обновлений
       return checker.call(this, link);
@@ -203,6 +213,8 @@ function checker (link = null) {
       // Скорее всего, произошла одна из ошибок: ETIMEDOUT, EHOSTUNREACH, ESOCKETTIMEDOUT, ECONNRESET, ECONNREFUSED, ENOTFOUND, 502 code, etc. 
       // Переподключаемся. 
       // В логи ничего не пишем
+      debug.err('- LongPolling error: ', error);
+      
       return getLinkAndStartChecking.call(this);
     });
 }

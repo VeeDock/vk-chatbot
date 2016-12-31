@@ -36,7 +36,7 @@ function commandParser (messageObj) {
   let message = messageObj.message;
   let cmdList = self._commands;
 
-  return cb => {
+  return function commandsParser (cb) {
     let args = new Arguments(messageObj);
     let cmd = message.split(' ')[0].substr(1).toLowerCase();
     let convType = messageObj.isMultichat ? 'mchat' : 'pm';

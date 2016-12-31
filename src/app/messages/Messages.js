@@ -181,6 +181,8 @@ class Messages extends EventEmitter {
 
       // Пришло новое сообщение.
       if (type === 'new_message') {
+        debug.out('= Message received.');
+
         // Предыдущее сообщение в данном диалоге.
         let prevMessage = (this._conversations[target.dialogId].lastMessage || '').toLowerCase();
 
@@ -208,6 +210,8 @@ class Messages extends EventEmitter {
 
       // Произошли изменения в беседе
       if (type === 'mchat_updated') {
+        debug.out('= Multichat updates.');
+
         // Обновляем список участников
         this._updateChatComp(target.mchatId);
 
@@ -216,11 +220,10 @@ class Messages extends EventEmitter {
     });
 
     debug.out('+ LongPolling listener was set');
+    debug.out('+ LongPolling checking was started');
 
     // Подключаемся к LongPoll серверу и проверяем обновления
     longpolling.call(this);
-
-    debug.out('+ LongPolling checking was started');
   }
 
   /**
