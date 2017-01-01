@@ -59,7 +59,7 @@ function getCommandFiles (cmdPath) {
  * @public
  */
 function getCommands ({ id/*, exclusiveOnly*/ }) {
-  let cmdPath   = path.join(process.cwd(), './app/messages/parsers/commands');
+  let cmdPath   = path.join(process.cwd(), './app/commands');
   let commands_ = getCommandFiles(cmdPath);
 
   return /*exclusiveOnly ? exclusive_ : */commands_;

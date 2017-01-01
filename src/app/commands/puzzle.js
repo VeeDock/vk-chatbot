@@ -4,7 +4,7 @@
  * Module dependencies
  * @private
  */
-const puzzles    = require('../../../../data/commands/puzzle');
+const puzzles    = require('../../data/commands/puzzle');
 const randomElem = require('./helpers/random-elem');
 
 /**

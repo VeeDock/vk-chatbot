@@ -4,7 +4,7 @@
  * Module dependencies
  * @private
  */
-const apiKey   = require('../../../../config').api.emotions;
+const apiKey   = require('../../config').api.emotions;
 const prequest = require('request-promise');
 
 /**

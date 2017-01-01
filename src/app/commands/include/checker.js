@@ -4,7 +4,7 @@
  * Module dependencies
  * @private
  */
-const words = require('../../../../../data/restricted');
+const words = require('../../../data/restricted');
 
 /**
  * Local constants

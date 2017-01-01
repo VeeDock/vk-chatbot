@@ -5,7 +5,7 @@
  * @private
  */
 const parseId            = require('./include/parse-id');
-const getPermissionsMask = require('../helpers/get-permissions-mask');
+const getPermissionsMask = require('../messages/parsers/helpers/get-permissions-mask');
 
 /**
  * Run command

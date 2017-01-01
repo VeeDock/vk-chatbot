@@ -10,7 +10,7 @@
  */
 const readline = require('readline');
 const fs = require('fs');
-const randomElem = require('../commands/helpers/random-elem');
+const randomElem = require('../../../commands/helpers/random-elem');
 const localDBPath = './data/answers.bin';
 
 /**

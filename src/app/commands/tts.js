@@ -4,7 +4,7 @@
  * Module dependencies
  * @private
  */
-const apiKeys  = require('../../../../config').api.ivona;
+const apiKeys  = require('../../config').api.ivona;
 const aws4     = require('aws4');
 const prequest = require('request-promise');
 

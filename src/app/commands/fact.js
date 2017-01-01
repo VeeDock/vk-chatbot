@@ -4,7 +4,7 @@
  * Module dependencies
  * @private
  */
-const facts      = require('../../../../data/commands/fact');
+const facts      = require('../../data/commands/fact');
 const randomElem = require('./helpers/random-elem');
 
 /**

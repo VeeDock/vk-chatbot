@@ -4,7 +4,7 @@
  * Module dependencies
  * @private
  */
-const apiKey   = require('../../../../config').api.weather;
+const apiKey   = require('../../config').api.weather;
 const prequest = require('request-promise');
 
 /**
