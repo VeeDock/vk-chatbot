@@ -17,13 +17,13 @@ const timeago      = require('timeago.js');
       // Добавим русскую локализацию для timeago.js
       timeago.register('ru', require('../../node_modules/timeago.js/locales/ru'));
 
-const Application  = require('./application/Application');
-const debug        = require('../lib/simple-debug')(__filename);
-const init         = require('./application/init');
-const pm2sender    = require('../lib/pm2-sender');
+const Application = require('./application/Application');
+const debug       = require('../lib/simple-debug')(__filename);
+const init        = require('./application/init');
+const pm2sender   = require('../lib/pm2-sender');
 
 // Accounts data
-const accounts    = require('../accounts');
+const accounts = require('../accounts');
 
 // Database files
 const usersDatabase  = new JsonDatabase('./data/users.json', true);

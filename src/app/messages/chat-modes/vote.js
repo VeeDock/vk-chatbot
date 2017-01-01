@@ -9,7 +9,7 @@
 
 /**
  * Process messages for vote mode
- * @param  {Object} messageObject Объект сообщения
+ * @param  {Object} messageObject Объект сообщения (longpolling.js#messageAssembler())
  * @public
  *
  * Функции передаётся контекст (this) класса Messages (../Messages.js)
