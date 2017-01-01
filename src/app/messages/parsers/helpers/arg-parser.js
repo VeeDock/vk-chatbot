@@ -30,7 +30,7 @@ function parseMessage (messageObject) {
 class Arguments {
   /**
    * Конструктор класса
-   * @param  {Object} messageObject Исходный объект сообщения
+   * @param  {Object} messageObject Исходный объект сообщения (longpolling.js#messageAssembler())
    */
   constructor (messageObject) {
     /**
@@ -93,7 +93,7 @@ class Arguments {
   }
 
   /**
-   * Возвращает ссылку на оригинальный объект сообщения (messages/processing.js)
+   * Возвращает ссылку на оригинальный объект сообщения
    * @return {Object}
    * @public
    */
@@ -103,7 +103,10 @@ class Arguments {
 
   /**
    * Возвращает текст сообщения после команды, 
-   * разбив его на две части: запрос и количество
+   * разбив его на две части: запрос и количество. 
+   *
+   * Используется в командах: /music, /video, /photo, /gif и др.
+   *
    * @return {Array} [query, count]
    * @public
    */
