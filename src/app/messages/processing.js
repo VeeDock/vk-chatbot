@@ -10,7 +10,7 @@
  */
 const apply       = require('./applying');
 const debug       = require('../../lib/simple-debug')(__filename);
-const replaceUrls = require('./parsers/commands/include/replacer');
+const replaceUrls = require('../commands/include/replacer');
 
 /**
  * Обработка и помещение сообщения в очередь
