@@ -187,7 +187,7 @@ class Messages extends EventEmitter {
         let prevMessage = (this._conversations[target.dialogId].lastMessage || '').toLowerCase();
 
         // Не обрабатываем сообщение, если оно идентично предыдущему.
-        if (target.message.toLowerCase() === prevMessage) 
+        if (target.message.toLowerCase() === prevMessage && this._conversations[target.dialogId].lastMessage) 
           return;
 
         // Если пользователь, написавший сообщение, заблокирован, то 
