@@ -62,7 +62,7 @@ node ./src/main
 'use strict';
 
 /**
- * Функция, которая будет выполнения при вызове команды
+ * Функция, которая будет выполнена при вызове команды
  * @param  {Arguments}  arg
  * @param  {Function}   callback
  * @public
@@ -127,7 +127,7 @@ module.exports = {
   use: '/command <argument> [optional argument]', 
 
   /**
-   * Функция, которая будет выполнения при вызове команды
+   * Функция, которая будет выполнена при вызове команды
    */
   run
 }
