@@ -200,7 +200,7 @@ class Messages extends EventEmitter {
 
         // Участники текущей беседы ещё не были загружены, поэтому получим их прямо сейчас.
         if (target.isMultichat && !this._conversations[target.mchatId].users) 
-          this._updateChatComp(target.mchatId);
+          this._updateChatComp(target.chatId);
 
         // Обработаем полученное сообщение (выполним команды / ответим на сообщение)
         processing.call(this, target);
@@ -213,7 +213,7 @@ class Messages extends EventEmitter {
         debug.out('= Multichat updates.');
 
         // Обновляем список участников
-        this._updateChatComp(target.mchatId);
+        this._updateChatComp(target.chatId);
 
         return;
       }

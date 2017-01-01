@@ -127,7 +127,7 @@ function updatesProcessor (updatesArray) {
       this.emit('longpoll_updates', {
         type:   'mchat_updated', 
         target: {
-          mchatId: current[1]
+          chatId: current[1]
         }
       });
 
