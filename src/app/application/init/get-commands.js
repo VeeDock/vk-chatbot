@@ -1,62 +1,45 @@
 'use strict';
 
 /**
- * Получение списка доступных команд для текущего бота
- */
-
-/**
- * Module dependencies
+ * Module dependencies.
  * @private
  */
 const fs   = require('fs');
 const path = require('path');
 
 /**
- * Возвращает объект { <Команда_1>: <Объект команды 1>, ..., <Команда_N>: <Объект команды N> }
- * @param  {String} dir Название папки, где находятся команды
+ * Возвращает массив отфильтрованных команд для текущего бота.
+ * 
+ * Формат записи данных:
+ * [
+ *   {
+ *     command: <Название команды>, 
+ *     <...свойства объекта команды> (aliases, unique, run, description, use, mask)
+ *   }
+ * ]
+ * 
+ * @param  {String} cmdPath Абсолютный путь к папке, где находятся команды
+ * @return {Array}
  * @private
  */
-function getCommandFiles (dir) {
-  let cmdPath = path.join(process.cwd(), './app/messages/parsers/', dir);
-  let files   = fs.readdirSync(cmdPath);
-  let output  = {};
-
-  for (let i = 0, len = files.length; i < len; i++) {
-    let current = files[i];
-
-    if (!current.endsWith('.js') || current.startsWith('_')) 
-      continue;
-
-    let filename = current.slice(0, -3);
-    let file     = require(path.join(cmdPath, filename));
-
-    output[filename] = file;
-  }
-
-  return output;
-}
-
-/**
- * Фильтрует объекты команд: отсеивает выключенные и те, которые не экспортируют функцию в <cmd>.run.
- * @param  {Object} cmdObject Объект полученных команд
- * @return {Array}            Массив отфильтрованных команд
- * @private
- */
-function filterCommands (cmdObject) {
-  /**
-   * Формат записи данных:
-   *   {
-   *     command: <Название команды>, 
-   *     <...свойства объекта команды> (aliases, unique, run, description, use, mask)
-   *   }
-   */
+function getCommandFiles (cmdPath) {
+  let files  = fs.readdirSync(cmdPath);
   let output = [];
 
-  for (let i = 0, keys = Object.keys(cmdObject), len = keys.length; i < len; i++) {
-    let current = cmdObject[keys[i]];
+  // Обрабатываем все файлы из папки cmdPath
+  for (let i = 0, len = files.length; i < len; i++) {
+    let currentFile = files[i];
 
-    if (current.enabled && typeof current.run === 'function') {
-      let objToPush = Object.assign({ command: keys[i] }, current);
+    // Текущий файл не подходит
+    if (!currentFile.endsWith('.js') || currentFile.startsWith('_')) 
+      continue;
+
+    let filename    = currentFile.slice(0, -3);
+    let commandFile = require(path.join(cmdPath, filename));
+
+    // Оставляем только включенные команды, а также те, которые экспортируют функцию в <cmd>.run.
+    if (commandFile.enabled && typeof commandFile.run === 'function') {
+      let objToPush = Object.assign({ command: filename }, commandFile);
 
       delete objToPush.enabled;
 
@@ -69,14 +52,15 @@ function filterCommands (cmdObject) {
 
 /**
  * Возвращает массив команд для текущего бота. 
- * @param  {Number} botId ID бота
+ * @param  {Object}
+ *   @property {Number}  id             ID бота
+ *   @property {Boolean} exclusiveOnly  Вернуть только эксклюзивные команды?
  * @return {Array}
  * @public
  */
 function getCommands ({ id/*, exclusiveOnly*/ }) {
-  let commands_ = filterCommands(getCommandFiles('commands'));
-  // let exclusive_ = filterCommands(getCommandFiles('commands-exclusive/' + botId));
-  // commands_ = commands_.concat(exclusive_);
+  let cmdPath   = path.join(process.cwd(), './app/messages/parsers/commands');
+  let commands_ = getCommandFiles(cmdPath);
 
   return /*exclusiveOnly ? exclusive_ : */commands_;
 }
