@@ -5,7 +5,6 @@
  * @private
  */
 const http  = require('http');
-const debug = require('debug')('server');
 const app   = require('./server');
 
 const server = http.createServer(app);
