@@ -1,8 +1,6 @@
-_/*
-!execute/
-!utilities/
 build/
-test/
+cfg/config.js
+cfg/accounts.js
 node_modules/
-TODO.md
+test/
 npm-debug.log

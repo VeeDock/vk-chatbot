@@ -1,0 +1,1 @@
+module.exports = ({ chat_id, users }) => `var a=[${users.join(',')}];while(a.length>0){API.messages.removeChatUser({chat_id:${chat_id},user_id:a.pop()});};return "ok";`;
