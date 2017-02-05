@@ -34,7 +34,7 @@ sudo npm i -g pm2
 ##### Установка и настройка Redis
 * [How To Install and Configure Redis on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-redis-on-ubuntu-16-04)
 
-Для сервера Redis испльзую также следующие параметры:  
+Для сервера Redis использую также следующие параметры:  
 ```
 maxmemory 10mb
 maxmemory-policy allkeys-lru
