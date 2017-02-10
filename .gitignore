@@ -2,5 +2,6 @@
 /cfg/config.js
 /cfg/accounts.js
 node_modules
+/src/data/answers
 /test
 npm-debug.log
