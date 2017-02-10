@@ -1,6 +1,6 @@
-build/
-cfg/config.js
-cfg/accounts.js
-node_modules/
-test/
+/build
+/cfg/config.js
+/cfg/accounts.js
+node_modules
+/test
 npm-debug.log
