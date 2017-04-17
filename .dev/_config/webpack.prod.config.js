@@ -18,22 +18,6 @@ module.exports = webpackMerge(require('./webpack.base.config'), {
         loader: ExtractTextPlugin.extract('vue-style-loader', 'css-loader')
       }, 
       {
-        test:   /\.postcss$/, 
-        loader: ExtractTextPlugin.extract('vue-style-loader', 'css-loader')
-      }, 
-      {
-        test:   /\.less$/, 
-        loader: ExtractTextPlugin.extract('vue-style-loader', 'css-loader!less-loader')
-      }, 
-      {
-        test:   /\.sass$/, 
-        loader: ExtractTextPlugin.extract('vue-style-loader', 'css-loader!sass-loader?indentedSyntax')
-      }, 
-      {
-        test:   /\.scss$/, 
-        loader: ExtractTextPlugin.extract('vue-style-loader', 'css-loader!sass-loader')
-      }, 
-      {
         test:   /\.stylus$/, 
         loader: ExtractTextPlugin.extract('vue-style-loader', 'css-loader!stylus-loader')
       }, 
@@ -52,10 +36,6 @@ module.exports = webpackMerge(require('./webpack.base.config'), {
   vue: {
     loaders: {
       css:     ExtractTextPlugin.extract('vue-style-loader', 'css-loader'), 
-      postcss: ExtractTextPlugin.extract('vue-style-loader', 'css-loader'), 
-      less:    ExtractTextPlugin.extract('vue-style-loader', 'css-loader!less-loader'), 
-      sass:    ExtractTextPlugin.extract('vue-style-loader', 'css-loader!sass-loader?indentedSyntax'), 
-      scss:    ExtractTextPlugin.extract('vue-style-loader', 'css-loader!sass-loader'), 
       stylus:  ExtractTextPlugin.extract('vue-style-loader', 'css-loader!stylus-loader'), 
       styl:    ExtractTextPlugin.extract('vue-style-loader', 'css-loader!stylus-loader')
     }
@@ -75,8 +55,8 @@ module.exports = webpackMerge(require('./webpack.base.config'), {
     new webpack.optimize.OccurrenceOrderPlugin(), 
     new ExtractTextPlugin('css/[name].[contenthash].css'),
     new HtmlWebpackPlugin({
-      filename: path.resolve('./build/www/public/index.html'), 
-      template: './src/www/frontend/index.pug', 
+      filename: path.resolve('./build/index.html'), 
+      template: './frontend/index.pug', 
       inject:   false, 
       minify:   {
         removeComments:        true, 

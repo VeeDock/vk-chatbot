@@ -9,12 +9,12 @@ const autoprefixer = require('autoprefixer');
 
 module.exports = {
   entry: {
-    app: './src/www/frontend/src/main.js'
+    app: './frontend/src/main.js'
   }, 
 
   output: {
     filename:   '[name].js', 
-    path:       path.resolve('./build/www/public/static'), 
+    path:       path.resolve('./build'), 
     publicPath: '/'
   }, 
 
@@ -23,9 +23,9 @@ module.exports = {
     fallback:   [path.resolve('./node_modules')], 
     alias:      {
       'vue$':       'vue/dist/vue.common.js', 
-      'src':        path.resolve('./src/www/frontend/src'), 
-      'assets':     path.resolve('./src/www/frontend/src/assets'), 
-      'components': path.resolve('./src/www/frontend/src/components')
+      'src':        path.resolve('./frontend/src'), 
+      'assets':     path.resolve('./frontend/src/assets'), 
+      'components': path.resolve('./frontend/src/components')
     }
   }, 
 
@@ -53,7 +53,7 @@ module.exports = {
       {
         test:   /\.js$/, 
         loader: 'babel', 
-        include: [path.resolve('./src/www/frontend/src')], 
+        include: [path.resolve('./frontend/src')], 
         exclude: /node_modules/
       }, 
 
@@ -80,10 +80,6 @@ module.exports = {
   vue: {
     loaders: {
       css:     'vue-style-loader!css-loader', 
-      postcss: 'vue-style-loader!css-loader', 
-      less:    'vue-style-loader!css-loader!less-loader', 
-      sass:    'vue-style-loader!css-loader!sass-loader?indentedSyntax', 
-      scss:    'vue-style-loader!css-loader!sass-loader', 
       stylus:  'vue-style-loader!css-loader!stylus-loader', 
       styl:    'vue-style-loader!css-loader!stylus-loader'
     }, 

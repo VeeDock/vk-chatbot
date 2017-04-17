@@ -13,7 +13,7 @@ const baseWebpackConfig = require('./webpack.base.config');
 
 // Hot reload
 Object.keys(baseWebpackConfig.entry).forEach(function (name) {
-  baseWebpackConfig.entry[name] = ['./.manage/dev/client.js'].concat(baseWebpackConfig.entry[name])
+  baseWebpackConfig.entry[name] = ['./.dev/dev/client.js'].concat(baseWebpackConfig.entry[name])
 });
 
 module.exports = webpackMerge(baseWebpackConfig, {
@@ -22,22 +22,6 @@ module.exports = webpackMerge(baseWebpackConfig, {
       {
         test:   /\.css$/, 
         loader: 'vue-style-loader!css-loader'
-      }, 
-      {
-        test:   /\.postcss$/, 
-        loader: 'vue-style-loader!css-loader'
-      }, 
-      {
-        test:   /\.less$/, 
-        loader: 'vue-style-loader!css-loader!less-loader'
-      }, 
-      {
-        test:   /\.sass$/, 
-        loader: 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
-      }, 
-      {
-        test:   /\.scss$/, 
-        loader: 'vue-style-loader!css-loader!sass-loader'
       }, 
       {
         test:   /\.stylus$/, 
@@ -63,7 +47,7 @@ module.exports = webpackMerge(baseWebpackConfig, {
     new webpack.NoErrorsPlugin(), 
     new HtmlWebpackPlugin({
       filename: 'index.html', 
-      template: './src/www/frontend/index.pug', 
+      template: './frontend/index.pug', 
       inject:   false
     }), 
     new FriendlyErrors()

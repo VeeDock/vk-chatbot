@@ -48,6 +48,9 @@ pm2.connect(error => {
       {
         name: 'www', 
         script: './build/www/main.js', 
+        env: {
+          DEBUG: process.env.DEBUG
+        }, 
         cwd, 
         node_args: ['--harmony'], 
         error_file: path.join(cwd, './build/.logs/www-error.log'), 
@@ -58,6 +61,9 @@ pm2.connect(error => {
       {
         name: 'bot', 
         script: './build/bot/main.js', 
+        env: {
+          DEBUG: process.env.DEBUG
+        }, 
         cwd, 
         node_args: ['--harmony'], 
         error_file: path.join(cwd, './build/.logs/bot-error.log'), 
