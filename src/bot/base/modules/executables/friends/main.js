@@ -1,1 +1,0 @@
-module.exports = 'var a=12;var b=API.friends.get({count:1}).count;var c=API.friends.getRequests({count:10,out:1}).items;if(c.length<10){a=a+(10-c.length);};var d=API.friends.getRequests({count:a,sort:0}).items;var e=10000+c.length-b;while(c.length>0){API.friends.delete({user_id:c.shift()});};while(e>0&&d.length>0){API.friends.add({user_id:d.shift()});e=e-1;};return "ok";';

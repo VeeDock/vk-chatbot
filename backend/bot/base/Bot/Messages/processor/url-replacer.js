@@ -4,14 +4,14 @@
  * Module dependencies.
  * @private
  */
-const words = require('../../../../data/restricted');
+const restrictedWords = require('../../../../data/restricted');
 
 /**
  * Local constants.
  * @private
  */
 const REGEXP_DOMAINS = /\.(?:[a-gik-pr-uwxмор][ac-gi-su-yоруф][a-gk-mr-tvxzгс]?[acehiosuvк]?[einoyв]?[etwа]?e?)/gmi;
-const REGEXP_WORDS   = new RegExp(Object.keys(words).join('|'), 'gmi');
+const REGEXP_WORDS   = new RegExp(Object.keys(restrictedWords).join('|'), 'gmi');
 const REPLACES = {
   // EN -> RU
   'a': 'а', 
@@ -70,7 +70,7 @@ function replace (message) {
 
   // Заменяем запрещённые слова, если они есть.
   if (REGEXP_WORDS.test(cleanMessage)) 
-    cleanMessage = cleanMessage.replace(REGEXP_WORDS, match => words[match]);
+    cleanMessage = cleanMessage.replace(REGEXP_WORDS, match => restrictedWords[match]);
 
   if (check(cleanMessage)) 
     cleanMessage = 'Пожалуйста, не используйте запрещённые слова при общении с ботом.';
@@ -79,5 +79,6 @@ function replace (message) {
 }
 
 module.exports = {
-  check, replace
+  check, 
+  replace
 }

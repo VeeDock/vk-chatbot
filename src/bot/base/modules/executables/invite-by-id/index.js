@@ -1,1 +1,0 @@
-module.exports = ({ chat_id, user_id }) => `var a=API.utils.resolveScreenName({screen_name:${user_id}});if(a.type=="user"){API.messages.addChatUser({chat_id:${chat_id},user_id:a.object_id});return "ok";}else{return "!ok";};`;
