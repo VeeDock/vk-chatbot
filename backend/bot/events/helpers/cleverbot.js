@@ -16,15 +16,15 @@ const REQUEST_URL_AU = 'http://cleverbot.existor.com/webservicexml_ais_';
 
 /**
  * Парсит ответ Cleverbot. 
- * @param  {String} response XML-документ
- * @return {Promise} => Result object { response, state }
+ * @param   {String}         response XML-документ
+ * @return  {Promise:Object}          { response, state }
  * @private
  */
 async function parseResponse (response) {
-  if (response && response.length === 0) 
+  if (response && !response.length) 
     throw new Error('"response" is empty.');
 
-  return await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     xml2js.parseString(response, (err, res) => {
       if (err) 
         return reject(err);
@@ -50,8 +50,8 @@ async function parseResponse (response) {
 
 /**
  * Шифрует параметры запроса.
- * @param  {Object} params Параметры запроса
- * @return {String}
+ * @param   {Object} params Параметры запроса
+ * @return  {String}
  * @private
  */
 function encodeParams (params) {
@@ -99,7 +99,7 @@ async function send ({ user = {}, message = {} }) {
     requestParams = Object.assign(requestParams, message.state);
   }
 
-  return await prequest.post({
+  return prequest.post({
       url:  requestUrl, 
       body: encodeParams(requestParams)
     })
