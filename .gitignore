@@ -1,7 +1,6 @@
 /build
-/cfg/config.js
-/cfg/accounts.js
+/backend/config/config.js
+/backend/config/accounts.js
 node_modules
-/src/data/answers
 /test
 npm-debug.log
