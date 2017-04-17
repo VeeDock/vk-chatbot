@@ -137,9 +137,3 @@ npm run dev
 #### TODO
 - [ ] **Add**: /кинопоиск <sup>[[1]](http://getmovie.cc/api-kinopoisk.html) [[2]](http://kparser.pp.ua/)</sup>
 - [ ] **Add**: /перевод <sup>[[1]](http://www.transltr.org/) [[2]](https://tech.yandex.ru/translate/doc/dg/reference/translate-docpage/)</sup>
-- [ ] **Fix**: Юзер может пригласить второго бота в беседу, избежав выхода первого, когда используется кастомный парсер (chat-mode != default).
-- [ ] **Fix**: Условие "followed" работает не так, как должно.
-- [ ] Решить что-то с капчей при загрузке медиа в ВК. (/tts, /klass, /unsplash)
-- [ ] Придумать что-нибудь с растущей очередью сообщений, когда юзеры долго не вводят капчу.
-- [ ] Переработать и вернуть команды: /img, /g, /wiki (Google постоянно отвечает капчей.)
-- [ ] Доработать **/me**.
