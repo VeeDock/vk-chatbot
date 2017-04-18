@@ -44,8 +44,6 @@ function apiResToText (apiResponse) {
          `🎐 Ветер: ${wind} м/с`;
 }
 
-// @todo: Добавить возможность просмотра прогноза погоды на 5 дней вперед
-
 async function run ({ bot, args, options }) {
   let city = args.fullText;
 
