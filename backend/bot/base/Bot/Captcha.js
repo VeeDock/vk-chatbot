@@ -107,6 +107,9 @@ async function addAndWait (bot_id, sid) {
       // Значение переменной до сих пор хранится здесь. 
       // Капча всё ещё не разгадана.
       if (waitingList[waitKey]) {
+        // Удаляем капчу из активных.
+        remove(bot_id, sid);
+
         resolve(null);
 
         clearTimeout(waitingList[waitKey + '_timer']);

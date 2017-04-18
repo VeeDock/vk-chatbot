@@ -3,7 +3,7 @@ import App from './Main';
 import apiServicePlugin from './plugins/api-service';
 
 Vue.use(apiServicePlugin, {
-  prefix: 'http://localhost/api/v1'
+  prefix: '/api/v1'
 });
 
 new Vue({
