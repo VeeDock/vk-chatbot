@@ -215,7 +215,6 @@ module.exports = {
     }
   }, 
 
-  // Пути резолвятся относительно ./build/config/
   path: {
     commands: path.resolve(__dirname, '../bot/commands/'), 
     events:   path.resolve(__dirname, '../bot/events/')
