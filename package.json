@@ -10,7 +10,6 @@
   },
   "scripts": {
     "build": "bash ./.dev/build/build.sh",
-    "deploy": "bash ./.dev/deploy/deploy.sh",
     "dev": "node ./.dev/dev",
     "start": "pm2 start ./backend/bootstrap/ecosystem.config.js"
   },
