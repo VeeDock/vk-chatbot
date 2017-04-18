@@ -3,4 +3,5 @@
 /backend/config/accounts.js
 node_modules
 /test
+deploy.sh
 npm-debug.log
