@@ -94,7 +94,7 @@ async function getAll () {
  * @public
  */
 async function addAndWait (bot_id, sid) {
-  await Redis.call('SADD', 'captcha:' + bot_id, sid);
+  await Redis.call('SADD', ['captcha:' + bot_id, sid]);
 
   return new Promise(resolve => {
     let waitKey = `captcha:recognized:${bot_id}:${sid}`;
@@ -128,7 +128,7 @@ async function addAndWait (bot_id, sid) {
  * @public
  */
 async function remove (bot_id, sid) {
-  return Redis.call('SREM', 'captcha:' + bot_id, sid);
+  return Redis.call('SREM', ['captcha:' + bot_id, sid]);
 }
 
 module.exports = {

@@ -53,7 +53,7 @@ async function run ({ bot, args, options }) {
 
 module.exports = {
   aliases:    ['пригласи'], 
-  help_text:  `/invite [user_id | ${ONLINE_FLAGS.join(' | ')}]\n\nПриглашает в беседу друга бота.`, 
+  help_text:  `/invite [${ONLINE_FLAGS.join(' | ')}]\n\nПриглашает в беседу друга бота.`, 
   uniqueness: 'mchat', 
   run
 }

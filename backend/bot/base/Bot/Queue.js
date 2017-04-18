@@ -29,10 +29,6 @@ class Queue {
    * @public
    */
   enqueue (message) {
-    // Достигнут лимит размера очереди сообщений.
-    if ((this.queue.length + 1) > this.limit) 
-      return;
-
     const conversationId = message.chat_id || message.user_id;
 
     /**

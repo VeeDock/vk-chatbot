@@ -14,7 +14,7 @@ const log   = require('../../../../lib/logger')('bot', __filename);
  * @public
  */
 async function clear (bot, chat_id) {
-  return Redis.call('del', [`conversation:users:${bot.id}:${chat_id}`]);
+  return Redis.call('DEL', [`conversation:users:${bot.id}:${chat_id}`]);
 }
 
 /**
