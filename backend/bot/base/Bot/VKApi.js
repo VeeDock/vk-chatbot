@@ -6,6 +6,7 @@
  */
 const prequest = require('request-promise');
 const VKApi    = require('node-vkapi');
+const log      = require('../../../lib/logger')('bot', __filename);
 const Captcha  = require('./Captcha');
 
 /**
@@ -47,12 +48,17 @@ class Api {
    */
   call (method, params) {
     // Метод "заморожен" до ввода капчи.
-    if (this.frozenMethods.has(method)) 
+    if (this.frozenMethods.has(method)) {
+      log.info(`[id${this.bot_id}] Method "${method}" is frozen.`);
+
       return Promise.reject('This method is frozen for now.');
+    }
 
     return this.instance.call(method, params)
       .catch(async error => {
         if (error.code === 14) {
+          log.info(`[id${this.bot_id}] Captcha appeared, method "${method}"`);
+
           // "Заморозим" метод на время, т.к. его всё равно нельзя 
           // будет использовать до ввода капчи.
           this.frozenMethods.add(method);
@@ -64,8 +70,13 @@ class Api {
           this.frozenMethods.delete(method);
 
           // Капчу не разгадали за 10 минут, попробуем выполнить запрос снова.
-          if (!captchaKey) 
+          if (!captchaKey) {
+            log.info(`[id${this.bot_id}] Captcha sid${captchaSid} have not been recognized.`);
+
             return this.call(method, params);
+          }
+
+          log.info(`[id${this.bot_id}] Captcha sid${captchaSid} have been recognized.`);
 
           // Капча была разгадана, отправляем запрос вместе с кодом с картинки.
           return this.call(

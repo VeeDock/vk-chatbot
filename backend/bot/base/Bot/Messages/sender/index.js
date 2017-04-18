@@ -29,7 +29,7 @@ function sendMessage (bot, messageObject) {
           return;
       }
 
-      log.error('Unable to send message.', error);
+      log.error(`[id${bot.id}] Unable to send message.`, error);
 
       return;
     });

@@ -83,8 +83,11 @@ class Bot {
 
       // Очередь заполнена на максимум, новые сообщения 
       // обрабатываться не будут.
-      if (this.queue.isFull()) 
+      if (this.queue.isFull()) {
+        log.info(`[id${this.id}] Queue is full, message will not be processed.`);
+
         return;
+      }
 
       const messageProcessed = await Messages.processor.process(this, messageObject);
 
@@ -92,9 +95,11 @@ class Bot {
         return;
 
       this.queue.enqueue(messageProcessed);
+
+      log.info(`[id${this.id}] Message is processed and enqueued.`);
     });
 
-    log.info(`[id${this.id}] Message processing started.`);
+    log.info(`[id${this.id}] Messages processing started.`);
   }
 
   /**
@@ -122,7 +127,7 @@ class Bot {
     // сообщения обрабатываться не будут.
     Messages.sender.send(this, message)
       .then(response => {
-        log.info('Message was sent.');
+        log.info(`[id${this.id}] Message was sent.`);
 
         setTimeout(() => this._startMessageSending(), config.bot.messages_delay);
       });
@@ -136,7 +141,7 @@ class Bot {
     try {
       await this.api.call('account.setOnline');
     } catch (error) {
-      log.error('Unable to update bot status.', error);
+      log.error(`[id${this.id}] Unable to update bot status.`, error);
     }
 
     setTimeout(() => this._startStatusUpdating(), config.bot.status_delay);
@@ -176,7 +181,7 @@ class Bot {
 
       });
     } catch (error) {
-      log.error('Unable to accept friend requests.', error);
+      log.error(`[id${this.id}] Unable to accept friend requests.`, error);
     }
 
     setTimeout(() => this._startFriendRequestsAccepting(), config.bot.friends_delay);
