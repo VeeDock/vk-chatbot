@@ -4,9 +4,8 @@
  * Module dependencies.
  * @private
  */
-const Conversation = require('../base/Bot/Messages/Conversation');
-const accounts     = require('../../config/accounts');
-const log          = require('../../lib/logger')('bot', __filename);
+const accounts = require('../../config/accounts');
+const log      = require('../../lib/logger')('bot', __filename);
 
 /**
  * В беседу пригласили пользователя.

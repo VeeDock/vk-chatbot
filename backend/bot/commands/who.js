@@ -37,7 +37,7 @@ async function run ({ bot, args, options }) {
   if (!args.fullText) 
     return;
 
-  const chatUsers = await Conversation.getUsers(bot.id, args.source.conversation_id);
+  const chatUsers = await Conversation.getUsers(bot, args.source.conversation_id);
   let   returnAnswer;
 
   if (chatUsers) {

@@ -42,6 +42,9 @@ async function handler (bot, message) {
   if (!/[а-яё]/ig.test(mess)) 
     return;
 
+  // @todo
+  // return;
+
   // Получаем ответ на сообщение от cleverbot.
   return cleverbot.send({
       user:    config.api.cleverbot, 

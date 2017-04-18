@@ -14,11 +14,14 @@ const Conversation = require('../base/Bot/Messages/Conversation');
 const ONLINE_FLAGS = ['-online', '-on', '-онлайн'];
 
 async function run ({ bot, args, options }) {
-  const chatUsers      = await Conversation.getUsers(bot.id, args.source.conversation_id);
+  const chatUsers      = await Conversation.getUsers(bot, args.source.conversation_id);
   const needToBeOnline = ONLINE_FLAGS.includes(args.firstWord);
 
+  if (!chatUsers) 
+    return;
+
   // Беседа переполнена.
-  if (chatUsers && Object.keys(chatUsers).length === 50) 
+  if (Object.keys(chatUsers).length === 50) 
     return;
 
   // Получаем 500 случайных друзей.
