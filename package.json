@@ -18,7 +18,6 @@
     "cheerio": "^0.20.0",
     "ioredis": "^2.5.0",
     "node-vkapi": "^2.1.0",
-    "pm2": "^1.0.0",
     "request": "^2.79.0",
     "request-promise": "^2.0.1",
     "walker-sample": "0.0.1",
