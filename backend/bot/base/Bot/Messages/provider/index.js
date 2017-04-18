@@ -13,7 +13,6 @@ const log          = require('../../../../../lib/logger')('bot', __filename);
  * @private
  */
 const HTML_ENTITIES = [['&lt;', '<'], ['&gt;', '>'], ['&amp;', '&'], ['&quot;', '"'], ['<br>', '. ']];
-const FLAGS         = [33, 49, 545, 561];
 
 const emitter = new EventEmitter();
 
@@ -78,16 +77,33 @@ function processUpdates (id, updates) {
   log.info(`[id${id}] Processing LongPoll updates..`);
 
   for (let item of updates) {
-    let mchatSenderId = item[7] && item[7].from && parseInt(item[7].from);
+    const mchatSenderId = item[7] && item[7].from && parseInt(item[7].from);
+    const flags         = item[2];
 
-    // @todo: Filter multichat messages from non-friends for some bots?
-
-    // Новое сообщение.
     if (
+      // Новое сообщение.
       item[0] === 4 && 
+
+      // Сообщение не прочитано.
+      (flags & 1) !== 0 && 
+
+      // Сообщение является входящим.
+      (flags & 2) === 0 && 
+
+      // Сообщение прислал друг. 
+      // * Пользователи, отправляющие сообщения в беседу, автоматически 
+      // становятся "друзьями".
       (
+        (flags & 32) !== 0 || mchatSenderId
+      ) && 
+
+      // Отправитель сообщения - не бот.
+      (
+        // Сообщение из беседы.
         mchatSenderId && mchatSenderId !== id || 
-        FLAGS.includes(item[2])
+
+        // Сообщение из личного диалога.
+        item[3] !== id
       )
     ) {
       emitter.emit(`message:${id}`, assembleMessage(item));
