@@ -30,7 +30,7 @@ async function getUsers (bot, chat_id) {
     return chatUsers;
 
   return bot.api.call('messages.getChatUsers', {
-      chat_id: bot.id, 
+      chat_id: chat_id, 
       fields:  'first_name'
     })
     .then(response => {
