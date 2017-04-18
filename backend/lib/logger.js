@@ -2,6 +2,13 @@
 
 const env = process.env.DEBUG || '';
 
+function getNowDate () {
+  const now = new Date();
+
+  return `${now.getUTCDate()}.${now.getUTCMonth()}.${now.getUTCFullYear()}, ` +
+         `${now.getUTCHours()}:${now.getUTCMinutes()}:${now.getUTCSeconds()}`;
+}
+
 /**
  * Логгирует ошибки.
  * @param {String} namespace
@@ -15,7 +22,7 @@ function error (namespace, filename, text, stack) {
 
   console.error(
     `[${namespace}][${filename}]`, 
-    `[${Date.now()}]`, 
+    `[${getNowDate()}]`, 
     text, 
     stack && '\n' || '', 
     stack || ''
@@ -34,7 +41,7 @@ function info (namespace, filename, text) {
 
   console.log(
     `[${namespace}][${filename}]`, 
-    `[${Date.now()}]`, 
+    `[${getNowDate()}]`, 
     text
   );
 }
