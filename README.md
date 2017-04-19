@@ -1,4 +1,4 @@
-> Подписывайтесь на паблик во ВКонтакте →
+> Сообщество «Чат-ботов» ВКонтакте →
 > [Чат-боты](https://vk.com/botsforchats)
 
 ## Содержание
@@ -129,7 +129,3 @@ npm run dev
   uniqueness
 }
 ```
-
-#### TODO
-- [ ] **Add**: /кинопоиск <sup>[[1]](http://getmovie.cc/api-kinopoisk.html) [[2]](http://kparser.pp.ua/)</sup>
-- [ ] **Add**: /перевод <sup>[[1]](http://www.transltr.org/) [[2]](https://tech.yandex.ru/translate/doc/dg/reference/translate-docpage/)</sup>
