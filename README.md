@@ -40,15 +40,13 @@ maxmemory 10mb
 maxmemory-policy allkeys-lru
 ```
 
-##### Установка MongoDB
-* [How to Install MongoDB on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-16-04)
-
 ##### Установка и настройка Nginx
 * [How To Install Nginx on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-16-04)
 * [How To Secure Nginx with Let's Encrypt on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
 * [Set Up Nginx as a Reverse Proxy Server](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04#set-up-nginx-as-a-reverse-proxy-server)
 
-HTTP заголовок `X-Frame-Options` выставляется в самом приложении, поэтому из конфига Nginx его можно удалить, чтобы не возникало конфликтов.
+В текущей конфигурации, все `sitename.com/api` запросы проксируются на локальный Node.js сервер (_backend/server/_).  
+Для остальных запросов раздаётся статика из директории фронтенд-билда.
 
 ##### Клонирование прокета и установка зависимостей
 ```
@@ -59,10 +57,10 @@ npm i
 
 ## Настройка
 #### Редактирование файлов
-* _cfg/accounts.default.js_  
+* _backend/config/accounts.default.js_  
 Здесь находится информация об аккаунтах ботов. Ботов может быть несколько.
 
-* _cfg/config.default.js_  
+* _backend/config/config.default.js_  
 Основной конфиг приложения.
 
 Необходимо заполнить все поля, заменив строки вида _"&lt;string&gt;"_ на свои данные.  
@@ -71,23 +69,23 @@ npm i
 ## Запуск
 Все команды выполняются в корневой директории проекта.  
 
-##### Сброка продакшн-версии
+##### Билдинг фронтенда
 ```
 npm run build
 ```
 
-##### Запуск приложения
+##### Запуск приложения (Bot + Server), используя PM2
 ```
 npm start
 ```
 
-##### Запуск локального live-reload сервера
+##### Запуск локального live-reload сервера для разработки
 ```
 npm run dev
 ```
 
 ## Добавление команд
-Все команды, которые выполняет бот, находятся в папке **src/bot/commands**. Имя файла является основным названием команды.  
+Все команды, которые выполняет бот, находятся в папке **backend/bot/commands**. Имя файла является основным названием команды.  
 
 Модуль каждой команды должен экспортировать объект следующего вида:  
 ```javascript
@@ -110,11 +108,9 @@ npm run dev
    * Функция, которая выполняется при вызове команды.
    * На вход первым аргументом принимает объект:
    *   {
-   *     id:      Number,           // ID текущего бота
-   *     app:     Reference,        // Ссылка на экземпляр Application
-   *     args:    CommandArguments, // Экземпляр класса CommandArguments
-   *     options: Object,           // Настройки команды (config.js#commands.<command_name>)
-   *     user:    Object            // Объект текущего пользователя (database/models/user.js)
+   *     bot:     Bot,              // Экземпляр "Bot" (backend/bot/base/Bot/index.js)
+   *     args:    CommandArguments, // Экземпляр "CommandArguments" (backend/bot/events/helpers/command-arguments.js)
+   *     options: Object            // Настройки команды (backend/config/config.js#commands.<command_name>)
    *   }
    * @type {Function}
    * @required
