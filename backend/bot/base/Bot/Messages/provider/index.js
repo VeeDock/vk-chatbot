@@ -35,7 +35,9 @@ function makeARequest (bot, link = '') {
         );
       })
       .catch(error => {
-        log.error('Unable to get LongPoll server info.', error);
+        // Не пишем в лог серверные ошибки ВКонтакте.
+        if (!(error.name === 'VKApiError' && error.code === 10)) 
+          log.error('Unable to get LongPoll server info.', error);
 
         return makeARequest(bot);
       });
@@ -61,6 +63,16 @@ function makeARequest (bot, link = '') {
       processUpdates(bot.id, response.updates);
     })
     .catch(error => {
+      // Страница временно недоступна.
+      if (
+        error.statusCode === 404 || 
+        error.statusCode === 502 || 
+        error.statusCode === 504
+      ) {
+        // Повторим запрос через 5 секунд.
+        return setTimeout(() => makeARequest(bot), 5000);
+      }
+
       log.error('LongPoll request error.', error);
 
       return makeARequest(bot);

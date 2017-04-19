@@ -56,7 +56,7 @@ class Api {
 
     return this.instance.call(method, params)
       .catch(async error => {
-        if (error.code === 14) {
+        if (error.name === 'VKApiError' && error.code === 14) {
           log.info(`[id${this.bot_id}] Captcha appeared, method "${method}"`);
 
           // "Заморозим" метод на время, т.к. его всё равно нельзя 

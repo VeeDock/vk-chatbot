@@ -6,6 +6,7 @@
  */
 const path         = require('path');
 const buildMessage = require('./builder');
+const log          = require('../../../../../lib/logger')('bot', __filename);
 const config       = require('../../../../../config');
 
 /**
@@ -23,7 +24,8 @@ async function process (bot, messageObject) {
     return;
 
   const eventHandler = require(path.join(config.path.events, eventType));
-  const handleResult = await eventHandler(bot, messageObject);
+  const handleResult = await eventHandler(bot, messageObject)
+                            .catch(error => log.error('Message processing error.', error));
 
   if (!handleResult) 
     return;

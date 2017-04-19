@@ -27,6 +27,11 @@ function sendMessage (bot, messageObject) {
         // Внутрення серверная ошибка, отправлять по-новой ничего не будем.
         if (error.code === 10) 
           return;
+
+        // Доступ запрещён. Скорее всего, бота кикнули из беседы и 
+        // он не может отправить в неё сообщение из очереди.
+        if (error.code === 7) 
+          return;
       }
 
       log.error(`[id${bot.id}] Unable to send message.`, error);

@@ -69,10 +69,11 @@ async function run ({ bot, args, options }) {
       }
     })
     .catch(error => {
-      if (error.statusCode == 500) 
-        return 'По вашему запросу ничего не найдено.';
+      // "photos_list is invalid"
+      if (error.name === 'VKApiError' && error.code === 100) 
+        return 'Не удалось загрузить найденное изображение.';
 
-      throw error;
+      return 'По вашему запросу ничего не найдено.';
     });
 }
 

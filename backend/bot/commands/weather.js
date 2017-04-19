@@ -78,6 +78,12 @@ async function run ({ bot, args, options }) {
       }
 
       return apiResToText(response);
+    })
+    .catch(error => {
+      if (error.statusCode === 404) 
+        return 'Указанный город не найден.';
+
+      throw error;
     });
 }
 

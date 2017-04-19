@@ -21,7 +21,7 @@ async function run ({ bot, args, options }) {
     return;
 
   // Беседа переполнена.
-  if (Object.keys(chatUsers).length === 50) 
+  if (Object.keys(chatUsers).length === 100) 
     return;
 
   // Получаем 500 случайных друзей.
@@ -48,6 +48,22 @@ async function run ({ bot, args, options }) {
       chat_id: args.source.conversation_id, 
       user_id: randomElem(friends)
     }).then(() => null);
+  })
+  .catch(error => {
+    if (error.name === 'VKApiError') {
+      // Данный пользователь является участников беседы.
+      if (error.code === 15)
+        return;
+
+      // "incorrect param" (?)
+      if (error.code === 100) 
+        return;
+
+      if (error.code === 103) 
+        return 'Беседа полностью заполнена.';
+    }
+
+    throw error;
   });
 }
 
