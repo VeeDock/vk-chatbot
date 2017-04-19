@@ -16,7 +16,7 @@ const log      = require('../../lib/logger')('bot', __filename);
 async function handler (bot, message) {
   // В беседу был приглашён ещё один наш бот. 
   // Старый бот выходит, новый остаётся.
-  if (Object.keys(accounts).includes(data.attachments.source_mid)) {
+  if (Object.keys(accounts).includes(message.attachments.source_mid)) {
     return bot.api.call('messages.removeChatUser', {
         chat_id: message.conversation_id, 
         user_id: bot.id
