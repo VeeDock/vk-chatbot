@@ -63,19 +63,9 @@ function makeARequest (bot, link = '') {
       processUpdates(bot.id, response.updates);
     })
     .catch(error => {
-      // Страница временно недоступна.
-      if (
-        error.statusCode === 404 || 
-        error.statusCode === 502 || 
-        error.statusCode === 504
-      ) {
-        // Повторим запрос через 5 секунд.
-        return setTimeout(() => makeARequest(bot), 5000);
-      }
-
-      log.error('LongPoll request error.', error);
-
-      return makeARequest(bot);
+      // LongPoll Server ВКонтакте __очень__ часто возвращает 404, 500-504, ETIMEDOUT, ECONNRESET, и т.п.
+      // Повторим запрос через 5 секунд.
+      return setTimeout(() => makeARequest(bot), 5000);
     });
 }
 
