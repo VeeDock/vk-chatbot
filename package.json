@@ -11,7 +11,8 @@
   "scripts": {
     "build": "bash ./.dev/build/build.sh",
     "dev": "node ./.dev/dev",
-    "start": "pm2 start ./backend/bootstrap/ecosystem.config.js"
+    "start": "pm2 start ./backend/bootstrap/ecosystem.config.js", 
+    "start:dev": "DEBUG=* pm2 start ./backend/bootstrap/ecosystem.config.js"
   },
   "dependencies": {
     "aws4": "^1.5.0",
