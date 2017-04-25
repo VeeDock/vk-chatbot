@@ -7,7 +7,11 @@
  * @public
  */
 async function handler (bot, message) {
-  // В текущей реализации приложения такая ситуация невозможна.
+  // Удаляем сообщения из очереди для этой беседы.
+  bot.queue.clearById(message.conversation_id);
+
+  // Удаляем список участников этой беседы из памяти.
+  Conversation.clear(bot, message.conversation_id);
 
   return;
 }

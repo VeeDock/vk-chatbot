@@ -21,13 +21,9 @@ async function handler (bot, message) {
         chat_id: message.conversation_id, 
         user_id: bot.id
       })
+      .then(() => null)
       .catch(error => {
         log.error('Unable to leave chat with more than one our bot in it.', error);
-
-        if (error.name === 'VKApiError' && error.code === 100) {
-          // return;
-          log.error('Message object: ', message);
-        }
 
         return;
       });
