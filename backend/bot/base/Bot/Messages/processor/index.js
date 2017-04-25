@@ -6,6 +6,7 @@
  */
 const path         = require('path');
 const buildMessage = require('./builder');
+const Limiter      = require('../Limiter');
 const log          = require('../../../../../lib/logger')('bot', __filename);
 const config       = require('../../../../../config');
 
@@ -18,6 +19,20 @@ const config       = require('../../../../../config');
  * @public
  */
 async function process (bot, messageObject) {
+  const limitStatus = await Limiter.getLimitStatus(bot, messageObject.sender_id);
+
+  // Лимит превышен.
+  if (limitStatus === 2) 
+    return;
+
+  // Лимит достигнут.
+  if (limitStatus === 1) {
+    return buildMessage(
+      'Ты слишком быстро строчишь ;-) Дай своим ручкам немножко отдохнуть.', 
+      messageObject
+    );
+  }
+
   const eventType = getEventType(bot, messageObject);
 
   if (!eventType) 
