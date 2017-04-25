@@ -44,4 +44,7 @@ export default {
     margin 0 auto
     padding 20px
     width 400px
+
+    @media screen and (max-width: 399px)
+      width auto
 </style>
