@@ -61,6 +61,11 @@ module.exports = {
       params: {}
     }, 
 
+    // commands/lastfm.js
+    lastfm: {
+      api_key: '<lastfm_free_api_key>'
+    }, 
+
     // commands/lol.js
     lol: {
       default: 5, 
