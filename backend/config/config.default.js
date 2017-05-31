@@ -32,10 +32,10 @@ module.exports = {
     messages_lock_duration: 5, 
 
     // Проверять заявки в друзья каждые * ms
-    friends_delay:  1000 * 60, 
+    friends_delay: 1000 * 60, 
 
     // Обновлять статус каждые * ms
-    status_delay: 1000 * 60 * 14, 
+    status_delay: 5 * 60 * 1000, 
 
     // Дефолтное обращение к боту.
     default_pattern: /^бот[\s,]/i
