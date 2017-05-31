@@ -2,6 +2,7 @@
 /build
 /backend/config/config.js
 /backend/config/accounts.js
+/logs
 node_modules
 /test
 deploy.sh
