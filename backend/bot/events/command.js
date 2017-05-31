@@ -48,7 +48,8 @@ async function handler (bot, message) {
       options: config.commands[command.name] || {}
     })
     .catch(error => {
-      log.error(`[/${command.name}] Command error`, error);
+      if (error) 
+        log.error(`[/${command.name}] Command error`, error);
 
       return 'Произошла неизвестная ошибка. Повторите запрос позже.';
     })
