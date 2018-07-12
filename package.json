@@ -1,5 +1,5 @@
 {
-  "name": "node-vkbot",
+  "name": "vk-chatbot",
   "version": "3.1.0",
   "description": "VKontakte chat-bots",
   "scripts": {

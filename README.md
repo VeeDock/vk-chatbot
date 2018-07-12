@@ -1,6 +1,4 @@
-> **Сентябрь, 2017** / Данный проект прекратил своё развитие. Вместо него появилась [облегчённая версия](https://github.com/olnazx/vk-chatbot-lite). Все функции ботов перешли в одно сообщество. 
-
-> Сообщество «Чат-ботов» ВКонтакте → [Чат-боты](https://vk.com/dumbbot)
+> Данный проект прекратил своё развитие. [Облегчённая версия](https://github.com/woodymikki/vk-chatbot-lite) чат-ботов.
 
 ## Содержание
 0. [Требования](#Требования)
@@ -51,8 +49,8 @@ maxmemory-policy allkeys-lru
 
 ##### Клонирование прокета и установка зависимостей
 ```
-git clone https://github.com/olnazx/node-vkbot.git
-cd node-vkbot
+git clone https://github.com/woodymikki/vk-chatbot.git
+cd vk-chatbot
 npm i
 ```
 

@@ -43,8 +43,6 @@ class Api {
 
   /**
    * "node-vkapi" .call() wrapper
-   *
-   * ## https://github.com/olnazx/node-vkapi/blob/master/lib/vkapi.js#L141
    */
   call (method, params) {
     // Метод "заморожен" до ввода капчи.
@@ -97,8 +95,6 @@ class Api {
 
   /**
    * "node-vkapi" .upload() wrapper
-   *
-   * ## https://github.com/olnazx/node-vkapi/blob/master/lib/files-upload.js
    */
   upload (type, params) {
     // "type" is not a string
